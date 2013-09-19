@@ -18,7 +18,7 @@ sendTimestamps = (room_id, res, msg) ->
       user_id:    null
       type:       'TimestampMessage'
       starred:    false
-    ) + '\r\n'
+    ) + '\r'
 
   int = setInterval sendTimestamp, 5*60e3
   res.on 'close', -> clearInterval(int)
@@ -37,10 +37,13 @@ sendMessages = (room_id, res, msg) ->
     user_id:    user_id
     type:       'TextMessage' # TODO: add more types
     starred:    Math.random() > 0.99
-  ) + '\r\n'
+  ) + '\r'
 
   setTimeout (-> sendMessages room_id, res, msg), Math.random()*25e3+5e3
 
+sendKeepAlives = (res) ->
+  int = setInterval (-> res.write ' '), 3e3
+  res.on 'close', -> clearInterval int
 
 app = express()
 app.use express.logger()
@@ -50,6 +53,7 @@ app.get '/room/:id/live.json', (req, res) ->
   room_id = req.params.id
   sendMessages room_id, res, msg
   sendTimestamps room_id, res, msg
+  sendKeepAlives res
   res.on 'close', -> msg.closed = true
 
 app.get '/room/:id', (req, res) ->
