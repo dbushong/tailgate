@@ -47,6 +47,8 @@ sendKeepAlives = (res) ->
 
 app = express()
 app.use express.logger()
+app.use express.static(__dirname + '/public')
+app.use express.favicon()
 
 app.get '/room/:id/live.json', (req, res) ->
   msg = id: 1
