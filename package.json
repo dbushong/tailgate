@@ -1,0 +1,6 @@
+{ "name": "tailgate"
+, "description": "Chrome packaged app Campfire client"
+, "repository": { "git": "git://github.com/dbushong/tailgate" }
+, "devDependencies": { "express": "3.4.x"
+                     }
+}
