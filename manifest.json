@@ -8,5 +8,6 @@
 , "permissions": [ { "socket": [ "tcp-connect:localhost:3000"
                                , "tcp-connect:streaming.campfirenow.com:80"
                                ] }
+                 , "storage"
                  ]
 }

@@ -93,6 +93,7 @@ Author: Boris Smus (smus@chromium.org)
    * @see http://developer.chrome.com/trunk/apps/socket.html#method-disconnect
    */
   TcpClient.prototype.disconnect = function() {
+    clearInterval(this.periodic);
     socket.disconnect(this.socketId);
     this.isConnected = false;
   };
@@ -126,13 +127,16 @@ Author: Boris Smus (smus@chromium.org)
    */
   TcpClient.prototype._onConnectComplete = function(resultCode) {
     // Start polling for reads.
-    setInterval(this._periodicallyRead.bind(this), 500);
+    // TODO: rewrite this non-polling?
+    // http://stackoverflow.com/questions/14193201/getting-event-when-new-data-can-be-read-chrome-socket-read-api
+    if (resultCode == 0)
+      this.periodic = setInterval(this._periodicallyRead.bind(this), 500);
 
     if (this.callbacks.connect) {
       // console.log('connect complete');
-      this.callbacks.connect();
+      this.callbacks.connect(resultCode);
     }
-    log('onConnectComplete');
+    log('onConnectComplete', resultCode);
   };
 
   /**
@@ -162,6 +166,10 @@ Author: Boris Smus (smus@chromium.org)
       this._arrayBufferToString(readInfo.data, function(str) {
         this.callbacks.recv(str);
       }.bind(this));
+    }
+    else if (readInfo.resultCode == -15 && !this.sentConnectionClosed) {
+      if (this.callbacks.disconnect) this.callbacks.disconnect();
+      this.sentConnectionClosed = true;
     }
   };
 

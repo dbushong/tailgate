@@ -2,61 +2,69 @@
 
 express = require 'express'
 
-utcNow = -> (new Date).toISOString()
-
-last_update = {}
-
-sendTimestamps = (room_id, res, msg) ->
-  sendTimestamp = ->
-    now = utcNow()
-    last_update[room_id] = now
-    res.write JSON.stringify(
-      room_id:    room_id
-      created_at: now
-      body:       null
-      id:         msg.id++
-      user_id:    null
-      type:       'TimestampMessage'
-      starred:    false
-    ) + '\r'
-
-  int = setInterval sendTimestamp, 5*60e3
-  res.on 'close', -> clearInterval(int)
-
-sendMessages = (room_id, res, msg) ->
-  return if msg.closed
-
-  user_id = Math.floor(Math.random() * 10) + 1
-  now     = utcNow()
-
-  res.write JSON.stringify(
-    room_id:    room_id
-    created_at: utcNow()
-    body:       "User #{user_id} says something at #{now}"
-    id:         msg.id++
-    user_id:    user_id
-    type:       'TextMessage' # TODO: add more types
-    starred:    Math.random() > 0.99
-  ) + '\r'
-
-  setTimeout (-> sendMessages room_id, res, msg), Math.random()*25e3+5e3
-
-sendKeepAlives = (res) ->
-  int = setInterval (-> res.write ' '), 3e3
-  res.on 'close', -> clearInterval int
-
 app = express()
 app.use express.logger()
 app.use express.static(__dirname + '/public')
 app.use express.favicon()
 
+fiveMin = (ms) ->
+  d = new Date ms
+  d.setMinutes      Math.floor(d.getMinutes() / 5) * 5
+  d.setSeconds      0
+  d.setMilliseconds 0
+  d
+
+cfDate = (d) ->
+  d.toISOString().replace(/T/, ' ').replace(/-/g, '/').replace(/\..+/, ' +0000')
+
+msg_id      = 1
+last_update = {}
 app.get '/room/:id/live.json', (req, res) ->
-  msg = id: 1
+  msg     = id: 1
   room_id = req.params.id
-  sendMessages room_id, res, msg
-  sendTimestamps room_id, res, msg
-  sendKeepAlives res
-  res.on 'close', -> msg.closed = true
+  int     = setInterval (-> res.write ' '), 3e3
+  timer   = null
+
+  res.on 'close', ->
+    clearTimeout timer if timer
+    clearInterval int
+    console.info "[room #{room_id}] closed connection"
+
+  do sendMessages = ->
+    user_id = Math.floor(Math.random() * 10) + 1
+    now     = new Date
+    buffer  = ''
+
+    fmnow = fiveMin now
+    if fiveMin(last_update[room_id] or 0) < fmnow
+      fmnow_str = cfDate fmnow
+      buffer = JSON.stringify(
+        room_id:    room_id
+        created_at: fmnow_str
+        body:       null
+        id:         msg_id++
+        user_id:    null
+        type:       'TimestampMessage'
+        starred:    false
+      ) + '\r'
+      console.info "[room #{room_id}] sent message #{msg_id-1} timestamp #{fmnow_str}"
+
+    now_str = cfDate now
+    buffer += JSON.stringify(
+      room_id:    room_id
+      created_at: now_str
+      body:       "User #{user_id} says something like føø at #{now}"
+      id:         msg_id++
+      user_id:    user_id
+      type:       'TextMessage' # TODO: add more types
+      starred:    Math.random() > 0.99
+    ) + '\r'
+    console.info "[room #{room_id}] sent message #{msg_id-1} from user #{user_id} at #{now_str}"
+
+    last_update[room_id] = now.getTime()
+    res.write buffer
+
+    timer = setTimeout sendMessages, Math.random()*25e3+5e3
 
 app.get '/room/:id', (req, res) ->
   id = req.params.id

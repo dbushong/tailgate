@@ -1,57 +1,40 @@
-host    = 'localhost'
-port    = 3000
-room_id = 1
-token   = 'abc'
+default_config =
+  host:     'localhost'
+  port:     3000
+  room_id:  1
+  token:    'abc'
 
-tcp = new TcpClient host, port
+config = {}
 
-header     = ''
-buffer     = ''
-chunk      = ''
-chunk_len  = null
+storage = chrome.storage.local # or chrome.storage.sync
 
+seen = {} # TODO: use a cycle buffer of some kind?
 handleMessage = (msg) ->
+  if seen[msg.id]
+    console.warn "got dup msg id #{msg.id}"
+    return
+
+  seen[msg.id] = true
+
+  # DO STUFF HERE
   console.log msg
 
-parseMessage = (str) ->
-  console.info 'CHUNK', str
-  for piece in str.split /\r/
-    continue unless /\{/.test piece
-    try
-      handleMessage JSON.parse piece
-    catch e
-      console.error "failed to parse JSON: #{piece}"
+storage.get default_config, (res) ->
+  for prop, val of res
+    config[prop] = val
+    document.getElementById(prop).value = val
 
-tcp.addResponseListener (str) ->
-  # TODO: mod TcpClient to return bytearray?
-  buffer += unescape encodeURIComponent str
+  client = new CampfireStreamingClient(
+    config.host, config.port, config.room_id, config.token)
+  client.on 'message', handleMessage
+  client.on 'connect', -> console.log 'connected to server'
+  client.connect()
 
-  while buffer.length > 0
-    unless header
-      return unless m = buffer.match /([\s\S]+?)\r?\n\r?\n([\s\S]*)/
-      header = m[1]
-      buffer = m[2]
-      #console.info 'HEADER', header
-
-    if chunk_len?
-      left = chunk_len - chunk.length
-      chunk += buffer[0...left]
-      buffer = buffer[left..]
-      if chunk.length is chunk_len
-        buffer = buffer[2..] # strip off \r\n
-        chunk_len = null
-        parseMessage decodeURIComponent escape chunk
-        chunk = ''
-
-    if m = buffer.match /^([0-9a-f]+)\r\n([\s\S]*)/
-      chunk_len = parseInt m[1], 16
-      buffer = m[2]
-    else
-      break
-
-tcp.connect ->
-  tcp.sendMessage """GET /room/#{room_id}/live.json HTTP/1.1\r
-                     Authorization: Basic #{btoa("#{token}:x")}\r
-                     Host: #{host}:#{port}\r
-                     Accept: */*\r\n\r\n
-                  """
+  document.getElementById('config').addEventListener 'submit', (e) ->
+    e.preventDefault()
+    for prop of config
+      config[prop] = document.getElementById(prop).value
+    storage.set config, ->
+      client2 = connect()
+      client.disconnect()
+      client = client2
