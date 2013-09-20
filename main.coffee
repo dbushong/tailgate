@@ -19,17 +19,21 @@ handleMessage = (msg) ->
   # DO STUFF HERE
   console.log msg
 
+connect = ->
+  client = new CampfireStreamingClient(
+    config.host, config.port, config.room_id, config.token)
+  client.on 'message', handleMessage
+  client.on 'connect', -> console.info 'connected to server'
+  client.on 'disconnect', -> console.info 'disconnected from server'
+  client.connect()
+  client
+
 storage.get default_config, (res) ->
   for prop, val of res
     config[prop] = val
     document.getElementById(prop).value = val
 
-  client = new CampfireStreamingClient(
-    config.host, config.port, config.room_id, config.token)
-  client.on 'message', handleMessage
-  client.on 'connect', -> console.log 'connected to server'
-  client.connect()
-
+  client = connect()
   document.getElementById('config').addEventListener 'submit', (e) ->
     e.preventDefault()
     for prop of config
