@@ -25,7 +25,7 @@ app.get '/room/:id/live.json', (req, res) ->
   int     = setInterval (-> res.write ' '), 3e3
   timer   = null
 
-  res.on 'close', ->
+  req.on 'close', ->
     clearTimeout timer if timer
     clearInterval int
     console.info "[room #{room_id}] closed connection"
