@@ -47,13 +47,17 @@
           _this.tcp.sendMessage("GET /room/" + _this.room_id + "/live.json HTTP/1.1\r\nAuthorization: Basic " + (btoa("" + _this.token + ":x")) + "\r\nHost: " + _this.host + ":" + _this.port + "\r\nAccept: */*\r\n\r\n");
           return _this.emit('connect');
         } else {
-          return _this._retry();
+          return _this._retry(code);
         }
       });
     };
 
-    CampfireStreamingClient.prototype._retry = function() {
-      console.warn('connection lost; retrying in 5 seconds...');
+    CampfireStreamingClient.prototype._retry = function(code) {
+      if (code == null) {
+        code = null;
+      }
+      code = code != null ? " (" + code + ")" : '';
+      console.warn("connection failed" + code + "; retrying in 5 seconds...");
       this.disconnect();
       return setTimeout(this.connect.bind(this), 5e3);
     };

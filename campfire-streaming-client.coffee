@@ -29,10 +29,11 @@ class @CampfireStreamingClient
                         """
         @emit 'connect'
       else
-        @_retry()
+        @_retry code
 
-  _retry: ->
-    console.warn 'connection lost; retrying in 5 seconds...'
+  _retry: (code=null) ->
+    code = if code? then " (#{code})" else ''
+    console.warn "connection failed#{code}; retrying in 5 seconds..."
     @disconnect()
     setTimeout @connect.bind(this), 5e3
 
