@@ -11,8 +11,9 @@ module.exports = (grunt) ->
         flatten: true
     watch:
       coffee:
-        files: ['<%= coffee.all.src %>']
+        files: ['src/*.coffee'] # can't be reference due to rewriting
         tasks: ['coffee']
+        options: spawn: false # needed for event games to work
 
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-watch'
@@ -20,4 +21,4 @@ module.exports = (grunt) ->
   grunt.registerTask 'default', ['coffee']
 
   grunt.event.on 'watch', (action, file) ->
-    grunt.config ['coffee', 'all', 'src'], [file]
+    grunt.config.set 'coffee.all.src', [ file ]
