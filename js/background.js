@@ -1,14 +1,15 @@
 (function() {
   chrome.app.runtime.onLaunched.addListener(function() {
-    return storage.get(['domain', 'api_key'], function(cfg) {
-      if (cfg.domain && cfg.api_key) {
-        if (false) {
+    return GET('/presence', function(err, res) {
+      if (err != null) {
+        return openAccountSettings();
+      } else {
+        console.log('/presence', res);
+        if (res.rooms.length > 0) {
           return openMainWindow();
         } else {
           return openRoomSelector();
         }
-      } else {
-        return openAccountSettings();
       }
     });
   });

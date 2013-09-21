@@ -1,10 +1,10 @@
 chrome.app.runtime.onLaunched.addListener ->
-  storage.get ['domain', 'api_key'], (cfg) ->
-    if cfg.domain and cfg.api_key
-      # GET /presence with timeout resulting in openAccountSettings()
-      if false # in AnyRooms
+  GET '/presence', (err, res) ->
+    if err?
+      openAccountSettings()
+    else
+      console.log '/presence', res
+      if res.rooms.length > 0
         openMainWindow()
       else
         openRoomSelector()
-    else
-      openAccountSettings()
