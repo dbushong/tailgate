@@ -6,7 +6,7 @@ A Chrome Packaged App client for Campfire
 
     onStartup:
       if accountRegistered
-        GET /presence
+        GET /presence # if times out/fails, open accountSettings instead
         if inAnyRooms
           open mainWindow
         else
