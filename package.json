@@ -3,5 +3,8 @@
 , "repository": { "git": "git://github.com/dbushong/tailgate" }
 , "devDependencies": { "express": "3.4.x"
                      , "campfire": "git://github.com/dbushong/node-campfire#configurable-host-port"
+                     , "grunt": "~0.4.1"
+                     , "coffee-script": "~1.6.3"
+                     , "grunt-contrib-coffee": "0.7.x"
                      }
 }
