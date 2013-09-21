@@ -6,8 +6,6 @@ default_config =
 
 config = {}
 
-storage = chrome.storage.local # or chrome.storage.sync
-
 seen = {} # TODO: use a cycle buffer of some kind?
 handleMessage = (msg) ->
   if seen[msg.id]
