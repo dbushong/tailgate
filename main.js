@@ -46,7 +46,7 @@
       document.getElementById(prop).value = val;
     }
     client = connect();
-    return document.getElementById('config').addEventListener('submit', function(e) {
+    document.getElementById('config').addEventListener('submit', function(e) {
       e.preventDefault();
       for (prop in config) {
         config[prop] = document.getElementById(prop).value;
@@ -57,6 +57,9 @@
         client.disconnect();
         return client = client2;
       });
+    });
+    return chrome.runtime.onSuspend.addListener(function() {
+      return client.disconnect();
     });
   });
 

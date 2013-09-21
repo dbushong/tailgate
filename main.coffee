@@ -42,3 +42,5 @@ storage.get default_config, (res) ->
       client2 = connect()
       client.disconnect()
       client = client2
+
+  chrome.runtime.onSuspend.addListener -> client.disconnect()
