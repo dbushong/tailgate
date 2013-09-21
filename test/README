@@ -2,4 +2,6 @@ fake-api.coffee: starts a simulation of the official Campfire server,
                  responding to a minimal set of API endpoints + enough of a
                  static tree to do non-internal-Chrome HTML page tests
 
+public/: static tree for above; mostly useless now
+
 fake-client.coffee: node-campfire powered fake client, to validate fake-api
