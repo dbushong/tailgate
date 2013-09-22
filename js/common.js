@@ -1,21 +1,32 @@
 (function() {
-  var request,
+  var level, log, request, _i, _len, _ref,
     __slice = [].slice;
 
   this.storage = chrome.storage.local;
 
   this.DefaultAPIBase = 'https://$domain.campfirenow.com';
 
-  this.DefaultStreamingBase = 'http://streaming.campfirenow.com';
+  this.DefaultStreamingBase = 'https://streaming.campfirenow.com';
 
-  this.log = function() {
-    var args;
-    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+  log = function(level, args) {
     return chrome.runtime.sendMessage({
       action: 'log',
-      log: args
+      log: args,
+      level: level
     });
   };
+
+  this.logger = {};
+
+  _ref = ['info', 'warn', 'error', 'log'];
+  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+    level = _ref[_i];
+    this.logger[level] = function() {
+      var args;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return log(level, args);
+    };
+  }
 
   this.startupWindows = function() {
     return storage.get(['domain', 'token'], function(config) {
@@ -65,13 +76,11 @@
       }
       api_base = ((config.dev_mode && config.api_base) || DefaultAPIBase).replace(/\$domain/, config.domain);
       opts = {
-        username: config.token,
-        password: 'X',
         timeout: 5000,
         type: type,
         url: "" + api_base + "/" + path,
         error: function(xhr, status, err) {
-          console.error("" + type + " " + path + " error: " + err, {
+          logger.error("" + type + " " + path + " error: " + err, {
             status: status,
             xhr: xhr
           });
@@ -79,6 +88,11 @@
         },
         success: function(res) {
           return cb(null, res);
+        },
+        beforeSend: function(xhr) {
+          var auth_hdr;
+          auth_hdr = "Basic " + (btoa("" + config.token + ":X"));
+          return xhr.setRequestHeader('Authorization', auth_hdr);
         }
       };
       if (type === 'GET') {

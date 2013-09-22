@@ -1,10 +1,13 @@
 @storage = chrome.storage.local # or chrome.storage.sync
 
 @DefaultAPIBase       = 'https://$domain.campfirenow.com'
-@DefaultStreamingBase = 'http://streaming.campfirenow.com'
+@DefaultStreamingBase = 'https://streaming.campfirenow.com'
 
-@log = (args...) ->
-  chrome.runtime.sendMessage action: 'log', log: args
+log = (level, args) ->
+  chrome.runtime.sendMessage action: 'log', log: args, level: level
+@logger = {}
+for level in ['info', 'warn', 'error', 'log']
+  @logger[level] = (args...) -> log level, args
 
 @startupWindows = ->
   storage.get ['domain', 'token'], (config) ->
@@ -43,15 +46,16 @@ request = (type, path, cb) ->
       .replace(/\$domain/, config.domain)
 
     opts =
-      username: config.token
-      password: 'X'
       timeout:  5000
       type:     type
       url:      "#{api_base}/#{path}"
       error: (xhr, status, err) ->
-        console.error "#{type} #{path} error: #{err}", { status, xhr }
+        logger.error "#{type} #{path} error: #{err}", { status, xhr }
         cb err
       success: (res) -> cb null, res
+      beforeSend: (xhr) ->
+        auth_hdr = "Basic #{btoa("#{config.token}:X")}"
+        xhr.setRequestHeader 'Authorization', auth_hdr
 
     # campfire API tends to return "OK" for modifying API calls
     opts.dataType = 'json' if type is 'GET'

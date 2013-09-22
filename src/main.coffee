@@ -3,20 +3,22 @@ room_ids_order  = []
 
 # TODO: open a tab in the GUI with a DOM id based on id
 openTab = (id, name) ->
-  console.log 'openTab', id, name
+  logger.info 'openTab', id, name
   $('<li>').attr('id', "tab-#{id}")
            .text(name)
            .appendTo('#tabs')
 
 # TODO: close a tab in the GUI with DOM id based on id
 closeTab = (id) ->
-  console.log 'closeTab', id
+  logger.info 'closeTab', id
   $("#tab-#{id}").remove()
 
 # TODO wire back up to the stuff below the return, populating connected_rooms
 # and room_ids_order
 connectToRoom = (room) ->
-  console.log 'connectToRoom', room
+  connected_rooms[room.id] = disconnect: ->
+  room_ids_order.push room.id
+  logger.info 'connectToRoom', room
   openTab room.id, room.name
 
 checkRooms = ->
@@ -67,7 +69,7 @@ handleMessage = (msg) ->
   seen[msg.id] = true
 
   # DO STUFF HERE
-  console.log msg
+  logger.info 'RECV MESSAGE', msg
 
 connect = ->
   client = new CampfireStreamingClient(

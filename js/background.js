@@ -3,7 +3,7 @@
 
   chrome.runtime.onMessage.addListener(function(msg, sender) {
     if (msg.action === 'log') {
-      return console.info.apply(console, msg.log);
+      return console[msg.level].apply(console, msg.log);
     }
   });
 

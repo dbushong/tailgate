@@ -5,5 +5,4 @@ chrome.app.runtime.onLaunched.addListener startupWindows
 
 # logging aggregator TODO: figure out how to include sender in log line?
 chrome.runtime.onMessage.addListener (msg, sender) ->
-  if msg.action is 'log'
-    console.info msg.log...
+  console[msg.level] msg.log...  if msg.action is 'log'

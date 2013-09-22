@@ -7,7 +7,7 @@
         if (err != null) {
 
         } else {
-          log("JOINED ROOM " + id);
+          logger.info("JOINED ROOM " + id);
           return GET('presence', function(err, res) {
             if (err != null) {
 
@@ -25,7 +25,7 @@
     });
     return GET('rooms', function(err, res) {
       var room, _i, _len, _ref, _results;
-      log('got rooms', res);
+      logger.info('got rooms', res);
       if (err != null) {
         openAccountSettings();
         window.close();

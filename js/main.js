@@ -6,17 +6,21 @@
   room_ids_order = [];
 
   openTab = function(id, name) {
-    console.log('openTab', id, name);
+    logger.info('openTab', id, name);
     return $('<li>').attr('id', "tab-" + id).text(name).appendTo('#tabs');
   };
 
   closeTab = function(id) {
-    console.log('closeTab', id);
+    logger.info('closeTab', id);
     return $("#tab-" + id).remove();
   };
 
   connectToRoom = function(room) {
-    console.log('connectToRoom', room);
+    connected_rooms[room.id] = {
+      disconnect: function() {}
+    };
+    room_ids_order.push(room.id);
+    logger.info('connectToRoom', room);
     return openTab(room.id, room.name);
   };
 
@@ -84,7 +88,7 @@
       return;
     }
     seen[msg.id] = true;
-    return console.log(msg);
+    return logger.info('RECV MESSAGE', msg);
   };
 
   connect = function() {

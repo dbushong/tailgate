@@ -5,7 +5,7 @@ $(document).ready ->
       if err?
         # FIXME: report somehow
       else
-        log "JOINED ROOM #{id}"
+        logger.info "JOINED ROOM #{id}"
         GET 'presence', (err, res) ->
           if err?
             # FIXME: report somehow
@@ -15,7 +15,7 @@ $(document).ready ->
             window.close()
 
   GET 'rooms', (err, res) ->
-    log 'got rooms', res
+    logger.info 'got rooms', res
     if err?
       openAccountSettings()
       window.close()
