@@ -6,11 +6,7 @@ A Chrome Packaged App client for Campfire
 
     onStartup:
       if accountRegistered
-        GET /presence # if times out/fails, open accountSettings instead
-        if inAnyRooms
-          open mainWindow
-        else
-          open roomSelector
+        open mainWindow
       else
         open accountSettings
 
@@ -33,6 +29,7 @@ A Chrome Packaged App client for Campfire
     accountSettings:
       * displays API key field
       * displays Campfire domain field
+      * devMode displays overrides for API endpoints
       * has [Save] and [Cancel] buttons
       * on Save updates API key and/or Campfire domain if they really changed
       * if changed
