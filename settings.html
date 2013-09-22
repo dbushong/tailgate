@@ -6,15 +6,20 @@
   <body>
     <form id="settings">
       <div>
-        <label for="api_base">(Dev) API Base:</label>
-        <input type="text" id="api_base" name="api_base">
-        <i>i.e. http://localhost:3000 or https://$domain.campfirenow.com</i>
+        <label for="dev_mode">Dev Mode:</label> 
+        <input type="checkbox" value="1" name="dev_mode" id="dev_mode">
       </div>
-      <div>
-        <label for="streaming_base">(Dev) Streaming Base:</label>
-        <input type="text" id="streaming_base" name="streaming_base">
-        <i>i.e. http://localhost:3000 or http://streaming.campfirenow.com</i>
-      </div>
+      <fieldset id="dev">
+        <div>
+          <label for="api_base">(Dev) API Base:</label>
+          <input type="text" id="api_base" name="api_base">
+        </div>
+        <div>
+          <label for="streaming_base">(Dev) Streaming Base:</label>
+          <input type="text" id="streaming_base" name="streaming_base">
+        </div>
+      </fieldset>
+
       <div>
         <label for="token">API Token:</label>
         <input type="text" id="token" name="token">

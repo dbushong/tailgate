@@ -1,32 +1,48 @@
 (function() {
+  var bools, defaults, setDevMode,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+  defaults = {
+    dev_mode: null,
+    domain: 'yourdomain',
+    token: 'abc123',
+    api_base: 'http://localhost:3000',
+    streaming_base: 'http://localhost:3000'
+  };
+
+  bools = ['dev_mode'];
+
+  setDevMode = function() {
+    var dev_mode;
+    dev_mode = $('#dev_mode')[0].checked;
+    return $('#dev').toggleClass('disabled', !dev_mode).find('input').attr('disabled', !dev_mode);
+  };
+
   $(document).ready(function() {
-    var defaults;
-    defaults = {
-      domain: 'yourdomain',
-      token: 'abc123',
-      api_base: DefaultAPIBase,
-      streaming_base: DefaultStreamingBase
-    };
     storage.get(defaults, function(config) {
-      var k, v, _results;
-      _results = [];
+      var $inp, k, v;
       for (k in config) {
         v = config[k];
-        _results.push($("#" + k).val(v));
+        $inp = $("#" + k);
+        if (__indexOf.call(bools, k) >= 0) {
+          $inp.val(v ? [1] : []);
+        } else {
+          $inp.val(v);
+        }
       }
-      return _results;
+      return setDevMode();
     });
+    $('#dev_mode').change(setDevMode);
     $('#cancel').click(function() {
       return window.close();
     });
     return $('#settings').submit(function(e) {
-      var config, setting, _i, _len, _ref;
+      var $inp, config, prop;
       e.preventDefault();
       config = {};
-      _ref = $(this).serializeArray();
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        setting = _ref[_i];
-        config[setting.name] = setting.value;
+      for (prop in defaults) {
+        $inp = $("#" + prop);
+        config[prop] = __indexOf.call(bools, prop) >= 0 ? $inp[0].checked : $inp.val();
       }
       return storage.set(config, function() {
         setTimeout((function() {

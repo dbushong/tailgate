@@ -62,6 +62,10 @@
       e.preventDefault();
       return openRoomSelector();
     });
+    $('#open-settings').click(function(e) {
+      e.preventDefault();
+      return openAccountSettings();
+    });
     return checkRooms();
   });
 

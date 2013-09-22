@@ -1,6 +1,6 @@
 @storage = chrome.storage.local # or chrome.storage.sync
 
-@DefaultAPIBase       = 'https://$domain.campfire.com'
+@DefaultAPIBase       = 'https://$domain.campfirenow.com'
 @DefaultStreamingBase = 'http://streaming.campfirenow.com'
 
 @startupWindows = ->
@@ -36,7 +36,7 @@ request = (type, path, cb) ->
   storage.get null, (config) ->
     return cb 'ENOCONFIG' unless config.token and config.domain
 
-    api_base = (config.api_base or DefaultAPIBase)
+    api_base = ((config.dev_mode and config.api_base) or DefaultAPIBase)
       .replace(/\$domain/, config.domain)
 
     opts =

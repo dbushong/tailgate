@@ -47,6 +47,10 @@ $(document).ready ->
     e.preventDefault()
     openRoomSelector()
 
+  $('#open-settings').click (e) ->
+    e.preventDefault()
+    openAccountSettings()
+
   checkRooms()
 
 return # stuff below this not working again yet

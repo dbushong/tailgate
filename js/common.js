@@ -4,7 +4,7 @@
 
   this.storage = chrome.storage.local;
 
-  this.DefaultAPIBase = 'https://$domain.campfire.com';
+  this.DefaultAPIBase = 'https://$domain.campfirenow.com';
 
   this.DefaultStreamingBase = 'http://streaming.campfirenow.com';
 
@@ -54,7 +54,7 @@
       if (!(config.token && config.domain)) {
         return cb('ENOCONFIG');
       }
-      api_base = (config.api_base || DefaultAPIBase).replace(/\$domain/, config.domain);
+      api_base = ((config.dev_mode && config.api_base) || DefaultAPIBase).replace(/\$domain/, config.domain);
       opts = {
         username: config.token,
         password: 'X',
