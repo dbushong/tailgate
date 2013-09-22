@@ -3,6 +3,9 @@
 @DefaultAPIBase       = 'https://$domain.campfirenow.com'
 @DefaultStreamingBase = 'http://streaming.campfirenow.com'
 
+@log = (args...) ->
+  chrome.runtime.sendMessage action: 'log', log: args
+
 @startupWindows = ->
   storage.get ['domain', 'token'], (config) ->
     if config.domain and config.token

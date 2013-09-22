@@ -7,13 +7,25 @@
         if (err != null) {
 
         } else {
-          return console.log("JOINED " + id);
+          log("JOINED ROOM " + id);
+          return GET('presence', function(err, res) {
+            if (err != null) {
+
+            } else {
+              chrome.runtime.sendMessage({
+                action: 'joined_room',
+                room_id: id
+              });
+              openMainWindow();
+              return window.close();
+            }
+          });
         }
       });
     });
     return GET('rooms', function(err, res) {
       var room, _i, _len, _ref, _results;
-      console.log(res);
+      log('got rooms', res);
       if (err != null) {
         openAccountSettings();
         window.close();

@@ -3,13 +3,19 @@ $(document).ready ->
     id = $(this).data('room-id')
     POST "room/#{id}/join", (err) ->
       if err?
-        # report somehow
+        # FIXME: report somehow
       else
-        # TODO: message the main window to run checkRooms() again
-        console.log "JOINED #{id}"
+        log "JOINED ROOM #{id}"
+        GET 'presence', (err, res) ->
+          if err?
+            # FIXME: report somehow
+          else
+            chrome.runtime.sendMessage action: 'joined_room', room_id: id
+            openMainWindow() # make sure main window's open
+            window.close()
 
   GET 'rooms', (err, res) ->
-    console.log res
+    log 'got rooms', res
     if err?
       openAccountSettings()
       window.close()

@@ -66,6 +66,11 @@
       e.preventDefault();
       return openAccountSettings();
     });
+    chrome.runtime.onMessage.addListener(function(msg) {
+      if (msg.action === 'joined_room') {
+        return checkRooms();
+      }
+    });
     return checkRooms();
   });
 

@@ -51,6 +51,9 @@ $(document).ready ->
     e.preventDefault()
     openAccountSettings()
 
+  chrome.runtime.onMessage.addListener (msg) ->
+    checkRooms() if msg.action is 'joined_room'
+
   checkRooms()
 
 return # stuff below this not working again yet

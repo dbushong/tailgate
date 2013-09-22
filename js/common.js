@@ -8,6 +8,15 @@
 
   this.DefaultStreamingBase = 'http://streaming.campfirenow.com';
 
+  this.log = function() {
+    var args;
+    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    return chrome.runtime.sendMessage({
+      action: 'log',
+      log: args
+    });
+  };
+
   this.startupWindows = function() {
     return storage.get(['domain', 'token'], function(config) {
       if (config.domain && config.token) {
