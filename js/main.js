@@ -1,27 +1,74 @@
 (function() {
-  var checkRooms, closeTab, connect, connectToRoom, connected_rooms, handleMessage, openTab, room_ids_order, seen;
+  var checkRooms, closeConnections, closeTab, connectToRoom, disconnectFromRoom, handleMessage, openTab, room_ids_order, seen_msg;
 
-  connected_rooms = {};
+  seen_msg = {};
+
+  this.connected_rooms = {};
 
   room_ids_order = [];
 
+  closeConnections = function() {
+    var id, room, _results;
+    _results = [];
+    for (id in connected_rooms) {
+      room = connected_rooms[id];
+      _results.push(room.connection.disconnect());
+    }
+    return _results;
+  };
+
+  chrome.runtime.onSuspend.addListener(closeConnections);
+
   openTab = function(id, name) {
     logger.info('openTab', id, name);
-    return $('<li>').attr('id', "tab-" + id).text(name).appendTo('#tabs');
+    $('<li>').attr('id', "tab-" + id).text(name).appendTo('#tabs');
+    return $('<div>').attr('id', "pane-" + id).appendTo('#panes');
   };
 
   closeTab = function(id) {
     logger.info('closeTab', id);
-    return $("#tab-" + id).remove();
+    $("#tab-" + id).remove();
+    return $("#pane-" + id).remove();
+  };
+
+  disconnectFromRoom = function(id) {
+    closeTab(id);
+    connected_rooms[id].connection.disconnect();
+    delete connected_rooms[id];
+    return room_ids_order = room_ids_order.filter(function(oid) {
+      return oid !== id;
+    });
+  };
+
+  handleMessage = function(msg) {
+    if (seen_msg[msg.id]) {
+      logger.warn("got dup msg id " + msg.id);
+      return;
+    }
+    seen_msg[msg.id] = true;
+    logger.info('RECV MESSAGE', msg);
+    return $('<div>').text(JSON.stringify(msg)).appendTo("#pane-" + msg.room_id);
   };
 
   connectToRoom = function(room) {
-    connected_rooms[room.id] = {
-      disconnect: function() {}
-    };
+    var $pane;
+    connected_rooms[room.id] = room;
     room_ids_order.push(room.id);
-    logger.info('connectToRoom', room);
-    return openTab(room.id, room.name);
+    $pane = openTab(room.id, room.name);
+    return storage.get(null, function(config) {
+      var client, streaming_base;
+      streaming_base = config.dev_mode ? config.streaming_base : DefaultStreamingBase;
+      client = new CampfireStreamingClient(config.streaming_base, room.id, config.token);
+      client.on('message', handleMessage);
+      client.on('connect', function() {
+        return logger.info("streaming room " + room.id);
+      });
+      client.on('disconnect', function() {
+        return logger.info("stopped streaming room " + room.id);
+      });
+      client.connect();
+      return room.connection = client;
+    });
   };
 
   checkRooms = function() {
@@ -47,11 +94,7 @@
         }
         _results = [];
         for (id in connected) {
-          connected_rooms[id].connection.disconnect();
-          delete connected_rooms[id];
-          _results.push(room_ids_order = room_ids_order.filter(function(oid) {
-            return oid !== id;
-          }));
+          _results.push(disconnectFromRoom(id));
         }
         return _results;
       } else {
@@ -71,63 +114,12 @@
       return openAccountSettings();
     });
     chrome.runtime.onMessage.addListener(function(msg) {
-      if (msg.action === 'joined_room') {
-        return checkRooms();
+      switch (msg.action) {
+        case ['joined_room', 'reconfigured']:
+          return checkRooms();
       }
     });
     return checkRooms();
-  });
-
-  return;
-
-  seen = {};
-
-  handleMessage = function(msg) {
-    if (seen[msg.id]) {
-      console.warn("got dup msg id " + msg.id);
-      return;
-    }
-    seen[msg.id] = true;
-    return logger.info('RECV MESSAGE', msg);
-  };
-
-  connect = function() {
-    var client;
-    client = new CampfireStreamingClient(config.host, config.port, config.room_id, config.token);
-    client.on('message', handleMessage);
-    client.on('connect', function() {
-      return console.info('connected to server');
-    });
-    client.on('disconnect', function() {
-      return console.info('disconnected from server');
-    });
-    client.connect();
-    return client;
-  };
-
-  storage.get(default_config, function(res) {
-    var client, prop, val;
-    for (prop in res) {
-      val = res[prop];
-      config[prop] = val;
-      document.getElementById(prop).value = val;
-    }
-    client = connect();
-    document.getElementById('config').addEventListener('submit', function(e) {
-      e.preventDefault();
-      for (prop in config) {
-        config[prop] = document.getElementById(prop).value;
-      }
-      return storage.set(config, function() {
-        var client2;
-        client2 = connect();
-        client.disconnect();
-        return client = client2;
-      });
-    });
-    return chrome.runtime.onSuspend.addListener(function() {
-      return client.disconnect();
-    });
   });
 
 }).call(this);

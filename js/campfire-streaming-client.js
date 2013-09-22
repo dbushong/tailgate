@@ -2,11 +2,15 @@
   var __slice = [].slice;
 
   this.CampfireStreamingClient = (function() {
-    function CampfireStreamingClient(host, port, room_id, token) {
-      this.host = host;
-      this.port = port;
+    function CampfireStreamingClient(base, room_id, token) {
+      var m, _ref;
       this.room_id = room_id;
       this.token = token;
+      if (!(m = base.match(/^http:\/\/([^\/:]+)(?::(\d+))?/))) {
+        throw new Error('Invalid streaming_base');
+      }
+      this.host = m[1];
+      this.port = (_ref = m[2]) != null ? _ref : 80;
       this.listeners = {};
     }
 

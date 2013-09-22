@@ -6,7 +6,7 @@
 
   this.DefaultAPIBase = 'https://$domain.campfirenow.com';
 
-  this.DefaultStreamingBase = 'https://streaming.campfirenow.com';
+  this.DefaultStreamingBase = 'http://streaming.campfirenow.com';
 
   log = function(level, args) {
     return chrome.runtime.sendMessage({

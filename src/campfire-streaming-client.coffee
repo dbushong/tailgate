@@ -1,5 +1,10 @@
 class @CampfireStreamingClient
-  constructor: (@host, @port, @room_id, @token) ->
+  constructor: (base, @room_id, @token) ->
+    unless m = base.match /^http:\/\/([^\/:]+)(?::(\d+))?/
+      throw new Error 'Invalid streaming_base'
+    
+    @host      = m[1]
+    @port      = m[2] ? 80
     @listeners = {}
 
   # TODO: use EventEmitter somehow?

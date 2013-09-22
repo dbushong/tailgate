@@ -1,7 +1,9 @@
 @storage = chrome.storage.local # or chrome.storage.sync
 
 @DefaultAPIBase       = 'https://$domain.campfirenow.com'
-@DefaultStreamingBase = 'https://streaming.campfirenow.com'
+@DefaultStreamingBase = 'http://streaming.campfirenow.com'
+# FIXME: if we come up with a better streaming solution, we can use 
+# https for streaming again
 
 log = (level, args) ->
   chrome.runtime.sendMessage action: 'log', log: args, level: level
