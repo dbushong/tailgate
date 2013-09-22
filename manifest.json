@@ -9,5 +9,7 @@
                                , "tcp-connect:streaming.campfirenow.com:80"
                                ] }
                  , "storage"
+                 , "https://*.campfirenow.com/*"
+                 , "http://localhost:3000/*"
                  ]
 }

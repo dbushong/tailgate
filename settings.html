@@ -3,20 +3,29 @@
   <head>
   </head>
   <body>
-    <form id="config">
+    <form id="settings">
       <div>
-        <label for="host">Host:</label> <input type="text" id="host">
+        <label for="api_base">(Dev) API Base:</label>
+        <input type="text" id="api_base" name="api_base">
+        <i>i.e. http://localhost:3000 or https://$domain.campfirenow.com</i>
       </div>
       <div>
-        <label for="port">Port:</label> <input type="text" id="port">
+        <label for="streaming_base">(Dev) Streaming Base:</label>
+        <input type="text" id="streaming_base" name="streaming_base">
+        <i>i.e. http://localhost:3000 or http://streaming.campfirenow.com</i>
       </div>
       <div>
-        <label for="room_id">Room ID:</label> <input type="text" id="room_id">
+        <label for="token">API Token:</label>
+        <input type="text" id="token" name="token">
       </div>
       <div>
-        <label for="token">API Token:</label> <input type="text" id="token">
+        <label for="domain">Domain:</label>
+        <input type="text" id="domain" name="domain">
       </div>
-      <div><input type="submit" value="Update"></div>
+      <div class="buttons">
+        <input type="button" value="Cancel" id="cancel">
+        <input type="submit" value="Save">
+      </div>
     </form>
     <script src="js/jquery-2.0.3.min.js"></script>
     <script src="js/common.js"></script>

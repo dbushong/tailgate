@@ -1,10 +1,32 @@
-default_config =
-  host:     'localhost'
-  port:     3000
-  room_id:  1
-  token:    'abc'
+connected_rooms = {}
+room_ids_order  = []
 
-config = {}
+connectToRoom = (room) ->
+  console.log 'connectToRoom', room
+
+checkRooms = ->
+  GET 'presence', (err, res) ->
+    console.log 'presence', res
+    if err?
+      openAccountSettings()
+      window.close()
+    else if res.rooms?.length
+      connected = {}
+      connected[id] = true for id in room_ids_order
+      for room in res.rooms
+        if connected[room.id]
+          delete connected[room.id]
+        else
+          connectToRoom room
+      for id of connected
+        console.warn "connected to room #{connected_rooms[id].name}, but not present!"
+    else # no open rooms?  to the selector!
+      openRoomSelector()
+      window.close()
+
+$(document).ready checkRooms
+
+return # stuff below this not working again yet
 
 seen = {} # TODO: use a cycle buffer of some kind?
 handleMessage = (msg) ->

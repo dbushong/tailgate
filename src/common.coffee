@@ -1,34 +1,51 @@
 @storage = chrome.storage.local # or chrome.storage.sync
 
+@DefaultAPIBase       = 'https://$domain.campfire.com'
+@DefaultStreamingBase = 'http://streaming.campfirenow.com'
+
+@startupWindows = ->
+  storage.get ['domain', 'token'], (config) ->
+    if config.domain and config.token
+      openMainWindow()
+    else
+      openAccountSettings()
+
 @openMainWindow = ->
   chrome.app.window.create 'main.html',
+    id: 'main'
     bounds:
       width: 400
       height: 500
 
 @openAccountSettings = ->
   chrome.app.window.create 'settings.html',
+    id: 'settings'
     bounds:
       width: 400
       height: 500
 
 @openRoomSelector = ->
   chrome.app.window.create 'room-selector.html',
+    id: 'room-selector'
     bounds:
       width: 400
       height: 500
 
+# doesn't work from background.coffee; it has no jQuery loaded
 request = (type, path, cb) ->
-  storage.get ['api_key', 'domain'], (config) ->
-    return cb 'ENOCONFIG' unless config.api_key and config.domain
+  storage.get null, (config) ->
+    return cb 'ENOCONFIG' unless config.token and config.domain
+
+    api_base = (config.api_base or DefaultAPIBase)
+      .replace(/\$domain/, config.domain)
 
     $.ajax
       dataType: 'json'
-      username: config.api_key
+      username: config.token
       password: 'X'
       timeout:  5000
       type:     type
-      url:      "https://#{config.domain}.campfirenow.com#{path}.json"
+      url:      "#{api_base}/#{path}.json"
       error: (xhr, status, err) ->
         console.error "#{type} #{path} error: #{err}", { status, xhr }
         cb err

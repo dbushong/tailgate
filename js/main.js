@@ -1,14 +1,51 @@
 (function() {
-  var config, connect, default_config, handleMessage, seen;
+  var checkRooms, connect, connectToRoom, connected_rooms, handleMessage, room_ids_order, seen;
 
-  default_config = {
-    host: 'localhost',
-    port: 3000,
-    room_id: 1,
-    token: 'abc'
+  connected_rooms = {};
+
+  room_ids_order = [];
+
+  connectToRoom = function(room) {
+    return console.log('connectToRoom', room);
   };
 
-  config = {};
+  checkRooms = function() {
+    return GET('presence', function(err, res) {
+      var connected, id, room, _i, _j, _len, _len1, _ref, _ref1, _results;
+      console.log('presence', res);
+      if (err != null) {
+        openAccountSettings();
+        return window.close();
+      } else if ((_ref = res.rooms) != null ? _ref.length : void 0) {
+        connected = {};
+        for (_i = 0, _len = room_ids_order.length; _i < _len; _i++) {
+          id = room_ids_order[_i];
+          connected[id] = true;
+        }
+        _ref1 = res.rooms;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          room = _ref1[_j];
+          if (connected[room.id]) {
+            delete connected[room.id];
+          } else {
+            connectToRoom(room);
+          }
+        }
+        _results = [];
+        for (id in connected) {
+          _results.push(console.warn("connected to room " + connected_rooms[id].name + ", but not present!"));
+        }
+        return _results;
+      } else {
+        openRoomSelector();
+        return window.close();
+      }
+    });
+  };
+
+  $(document).ready(checkRooms);
+
+  return;
 
   seen = {};
 

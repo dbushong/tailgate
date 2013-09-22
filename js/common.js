@@ -4,8 +4,23 @@
 
   this.storage = chrome.storage.local;
 
+  this.DefaultAPIBase = 'https://$domain.campfire.com';
+
+  this.DefaultStreamingBase = 'http://streaming.campfirenow.com';
+
+  this.startupWindows = function() {
+    return storage.get(['domain', 'token'], function(config) {
+      if (config.domain && config.token) {
+        return openMainWindow();
+      } else {
+        return openAccountSettings();
+      }
+    });
+  };
+
   this.openMainWindow = function() {
     return chrome.app.window.create('main.html', {
+      id: 'main',
       bounds: {
         width: 400,
         height: 500
@@ -15,6 +30,7 @@
 
   this.openAccountSettings = function() {
     return chrome.app.window.create('settings.html', {
+      id: 'settings',
       bounds: {
         width: 400,
         height: 500
@@ -24,6 +40,7 @@
 
   this.openRoomSelector = function() {
     return chrome.app.window.create('room-selector.html', {
+      id: 'room-selector',
       bounds: {
         width: 400,
         height: 500
@@ -32,17 +49,19 @@
   };
 
   request = function(type, path, cb) {
-    return storage.get(['api_key', 'domain'], function(config) {
-      if (!(config.api_key && config.domain)) {
+    return storage.get(null, function(config) {
+      var api_base;
+      if (!(config.token && config.domain)) {
         return cb('ENOCONFIG');
       }
+      api_base = (config.api_base || DefaultAPIBase).replace(/\$domain/, config.domain);
       return $.ajax({
         dataType: 'json',
-        username: config.api_key,
+        username: config.token,
         password: 'X',
         timeout: 5000,
         type: type,
-        url: "https://" + config.domain + ".campfirenow.com" + path + ".json",
+        url: "" + api_base + "/" + path + ".json",
         error: function(xhr, status, err) {
           console.error("" + type + " " + path + " error: " + err, {
             status: status,
