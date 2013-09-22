@@ -1,18 +1,28 @@
 (function() {
-  var checkRooms, connect, connectToRoom, connected_rooms, handleMessage, room_ids_order, seen;
+  var checkRooms, closeTab, connect, connectToRoom, connected_rooms, handleMessage, openTab, room_ids_order, seen;
 
   connected_rooms = {};
 
   room_ids_order = [];
 
+  openTab = function(id, name) {
+    console.log('openTab', id, name);
+    return $('<li>').attr('id', "tab-" + id).text(name).appendTo('#tabs');
+  };
+
+  closeTab = function(id) {
+    console.log('closeTab', id);
+    return $("#tab-" + id).remove();
+  };
+
   connectToRoom = function(room) {
-    return console.log('connectToRoom', room);
+    console.log('connectToRoom', room);
+    return openTab(room.id, room.name);
   };
 
   checkRooms = function() {
     return GET('presence', function(err, res) {
       var connected, id, room, _i, _j, _len, _len1, _ref, _ref1, _results;
-      console.log('presence', res);
       if (err != null) {
         openAccountSettings();
         return window.close();
@@ -33,7 +43,11 @@
         }
         _results = [];
         for (id in connected) {
-          _results.push(console.warn("connected to room " + connected_rooms[id].name + ", but not present!"));
+          connected_rooms[id].connection.disconnect();
+          delete connected_rooms[id];
+          _results.push(room_ids_order = room_ids_order.filter(function(oid) {
+            return oid !== id;
+          }));
         }
         return _results;
       } else {
@@ -43,7 +57,13 @@
     });
   };
 
-  $(document).ready(checkRooms);
+  $(document).ready(function() {
+    $('#add-rooms').click(function(e) {
+      e.preventDefault();
+      return openRoomSelector();
+    });
+    return checkRooms();
+  });
 
   return;
 

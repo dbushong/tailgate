@@ -39,17 +39,21 @@ request = (type, path, cb) ->
     api_base = (config.api_base or DefaultAPIBase)
       .replace(/\$domain/, config.domain)
 
-    $.ajax
-      dataType: 'json'
+    opts =
       username: config.token
       password: 'X'
       timeout:  5000
       type:     type
-      url:      "#{api_base}/#{path}.json"
+      url:      "#{api_base}/#{path}"
       error: (xhr, status, err) ->
         console.error "#{type} #{path} error: #{err}", { status, xhr }
         cb err
       success: (res) -> cb null, res
+
+    # campfire API tends to return "OK" for modifying API calls
+    opts.dataType = 'json' if type is 'GET'
+
+    $.ajax opts
 
 @GET    = (args...) -> request 'GET',    args...
 @POST   = (args...) -> request 'POST',   args...

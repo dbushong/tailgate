@@ -1,12 +1,26 @@
 connected_rooms = {}
 room_ids_order  = []
 
+# TODO: open a tab in the GUI with a DOM id based on id
+openTab = (id, name) ->
+  console.log 'openTab', id, name
+  $('<li>').attr('id', "tab-#{id}")
+           .text(name)
+           .appendTo('#tabs')
+
+# TODO: close a tab in the GUI with DOM id based on id
+closeTab = (id) ->
+  console.log 'closeTab', id
+  $("#tab-#{id}").remove()
+
+# TODO wire back up to the stuff below the return, populating connected_rooms
+# and room_ids_order
 connectToRoom = (room) ->
   console.log 'connectToRoom', room
+  openTab room.id, room.name
 
 checkRooms = ->
   GET 'presence', (err, res) ->
-    console.log 'presence', res
     if err?
       openAccountSettings()
       window.close()
@@ -17,14 +31,23 @@ checkRooms = ->
         if connected[room.id]
           delete connected[room.id]
         else
+          # open up connections to missing room tabs
           connectToRoom room
+      # close extraneous room tabs
       for id of connected
-        console.warn "connected to room #{connected_rooms[id].name}, but not present!"
+        connected_rooms[id].connection.disconnect()
+        delete connected_rooms[id]
+        room_ids_order = room_ids_order.filter (oid) -> oid isnt id
     else # no open rooms?  to the selector!
       openRoomSelector()
       window.close()
 
-$(document).ready checkRooms
+$(document).ready ->
+  $('#add-rooms').click (e) ->
+    e.preventDefault()
+    openRoomSelector()
+
+  checkRooms()
 
 return # stuff below this not working again yet
 

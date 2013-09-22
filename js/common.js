@@ -50,18 +50,17 @@
 
   request = function(type, path, cb) {
     return storage.get(null, function(config) {
-      var api_base;
+      var api_base, opts;
       if (!(config.token && config.domain)) {
         return cb('ENOCONFIG');
       }
       api_base = (config.api_base || DefaultAPIBase).replace(/\$domain/, config.domain);
-      return $.ajax({
-        dataType: 'json',
+      opts = {
         username: config.token,
         password: 'X',
         timeout: 5000,
         type: type,
-        url: "" + api_base + "/" + path + ".json",
+        url: "" + api_base + "/" + path,
         error: function(xhr, status, err) {
           console.error("" + type + " " + path + " error: " + err, {
             status: status,
@@ -72,7 +71,11 @@
         success: function(res) {
           return cb(null, res);
         }
-      });
+      };
+      if (type === 'GET') {
+        opts.dataType = 'json';
+      }
+      return $.ajax(opts);
     });
   };
 

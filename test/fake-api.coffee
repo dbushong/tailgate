@@ -88,7 +88,43 @@ app.get '/room/:id', (req, res) ->
         name: "User #{n}"
         type: 'Member'
 
+fake_rooms = [
+  {
+    topic: 'Something about Room 1'
+    created_at: '1970/01/01 00:00:00 +0000'
+    locked: false
+    updated_at: '2013/01/01 01:23:45 +0000'
+    name: 'Room #1'
+    id: 1
+    membership_limit: 100
+  }
+  {
+    topic: 'Something about Room 2'
+    created_at: '1980/01/01 00:00:00 +0000'
+    locked: false
+    updated_at: '2003/01/01 01:23:45 +0000'
+    name: 'Room #2'
+    id: 2
+    membership_limit: 100
+  }
+]
+
+app.get '/rooms', (req, res) ->
+  extra_room =
+    topic: 'Something about Room 3'
+    created_at: '1990/01/01 00:00:00 +0000'
+    locked: false
+    updated_at: '1993/01/01 01:23:45 +0000'
+    name: 'Room #3'
+    id: 3
+    membership_limit: 100
+  res.send rooms: fake_rooms.concat(extra_room)
+
+# TODO: actually let you join rooms via session or something
 app.post '/room/:id/join', (req, res) -> res.send 200
+
+app.get '/presence', (req, res) ->
+  res.send rooms: fake_rooms
 
 port = process.env.PORT ? 3000
 app.listen port
