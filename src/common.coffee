@@ -13,7 +13,7 @@ for level in ['info', 'warn', 'error', 'log']
 
 @startupWindows = ->
   storage.get ['domain', 'token'], (config) ->
-    if config.domain and config.token
+    if false and config.domain and config.token # FIXME: remove false
       openMainWindow()
     else
       openAccountSettings()

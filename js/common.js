@@ -30,7 +30,7 @@
 
   this.startupWindows = function() {
     return storage.get(['domain', 'token'], function(config) {
-      if (config.domain && config.token) {
+      if (false && config.domain && config.token) {
         return openMainWindow();
       } else {
         return openAccountSettings();

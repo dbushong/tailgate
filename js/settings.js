@@ -1,5 +1,5 @@
 (function() {
-  var bools, defaults, setDevMode,
+  var defaults, setDevMode,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   defaults = {
@@ -10,7 +10,7 @@
     streaming_base: 'http://localhost:3000'
   };
 
-  bools = ['dev_mode'];
+  this.settingsController = function($scope) {};
 
   setDevMode = function() {
     var dev_mode;

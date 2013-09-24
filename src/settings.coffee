@@ -5,7 +5,8 @@ defaults =
   api_base:       'http://localhost:3000'
   streaming_base: 'http://localhost:3000'
 
-bools = ['dev_mode']
+@settingsController = ($scope) ->
+  # blah blah
 
 setDevMode = ->
   dev_mode = $('#dev_mode')[0].checked
