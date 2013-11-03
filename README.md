@@ -1,6 +1,9 @@
 # Tailgate
 
-A Chrome Packaged App client for Campfire
+A Chrome Packaged App client for Campfire -- ABANDONED
+
+Though this is more-or-less API complete, I hit some raw TCP issues that really feel like Chrome bugs, and I'll
+be using HipChat in the near future so my motivation has fallen off.
 
 ## Flow
 
